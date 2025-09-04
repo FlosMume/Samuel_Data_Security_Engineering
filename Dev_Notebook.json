@@ -1,0 +1,37 @@
+{
+  "description": "DEV all-purpose compute on Docker from ACR; UC enforced; safe defaults; cost control.",
+  "cluster_type": { "type": "fixed", "value": "all-purpose" },
+  "spark_version": { "type": "fixed", "value": "auto:latest-lts" },
+  "data_security_mode": { "type": "fixed", "value": "USER_ISOLATION" },
+
+  "docker_image.url": {
+    "type": "regex",
+    "pattern": "^<acr>\\.azurecr\\.io/(sandbox|databricks)/[a-z0-9._/-]+:(dev|test)-[a-z0-9._-]+$"
+  },
+  "docker_image.basic_auth.username": { "type": "fixed", "value": "{{secrets/ACR/dev-username}}", "hidden": true },
+  "docker_image.basic_auth.password": { "type": "fixed", "value": "{{secrets/ACR/dev-password}}", "hidden": true },
+
+  "workload_type.clients.notebooks": { "type": "fixed", "value": true },
+  "workload_type.clients.jobs": { "type": "fixed", "value": false },
+
+  "num_workers": { "type": "range", "minValue": 0, "maxValue": 4, "defaultValue": 1 },
+  "autotermination_minutes": { "type": "unlimited", "defaultValue": 60, "isOptional": true },
+  "dbus_per_hour": { "type": "range", "maxValue": 6 },
+
+  "node_type_id": { "type": "allowlist", "values": ["Standard_DS3_v2","Standard_D4ads_v5"] },
+  "driver_node_type_id": { "type": "fixed", "value": "Standard_DS3_v2" },
+
+  "enable_local_disk_encryption": { "type": "fixed", "value": true },
+
+  "cluster_log_conf.type": { "type": "fixed", "value": "VOLUMES" },
+  "cluster_log_conf.path": {
+    "type": "regex",
+    "pattern": "^/Volumes/<catalog>/<schema>/cluster-logs/[a-z0-9/_-]+$"
+  },
+
+  "init_scripts.*.workspace.destination": { "type": "forbidden" },
+  "init_scripts.*.file.destination": { "type": "forbidden" },
+
+  "custom_tags.ENV": { "type": "fixed", "value": "DEV" },
+  "custom_tags.COST_CENTER": { "type": "allowlist", "values": ["DPS","LABS"] }
+}
